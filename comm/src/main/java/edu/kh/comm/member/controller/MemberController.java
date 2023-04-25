@@ -2,12 +2,14 @@ package edu.kh.comm.member.controller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import edu.kh.comm.member.model.service.MemberService;
 import edu.kh.comm.member.model.vo.Member;
 
 // POJO 기반 프레임워크 : 외부 라이브러리 상속 X
@@ -26,6 +28,10 @@ import edu.kh.comm.member.model.vo.Member;
 public class MemberController {
 	
 	private Logger logger = LoggerFactory.getLogger(MemberController.class);
+	
+	// private MemberService service = new MemberServiceImpl(); // IOC(제어의 역전) : new 연산자를 통해 개발자가 직접 객체 생성하지 않는다.
+	@Autowired // bean으로 등록된 객체 중 타입이 같거나, 상속 관계인 bean을 주입
+	private MemberService service; // -> DI(의존성 주입)
 	
 	// Controller : 요청/응답을 제어하는 역할의 클래스
 	
@@ -118,9 +124,12 @@ public class MemberController {
 	// - VO 필드에 대한 Setter
 	
 	@PostMapping("/login")
-	public String login(@ModelAttribute Member memberEmail) {
+	public String login(@ModelAttribute Member inputMember) {
 		
 		logger.info("로그인 기능 수행됨");
+		
+		// 아이디, 비밀번호가 일치하는 회원 정보를 조회하는 Service 호출 후 결과 반환 받기
+		Member loginMember = service.login(inputMember);
 		
 		return "redirect:/";
 	}

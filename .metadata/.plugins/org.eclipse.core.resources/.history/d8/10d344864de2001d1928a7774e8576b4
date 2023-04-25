@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace = "memberMapper">
+
+	<!-- mapper 파일 생성 시 반드시 해야되는 것!
+		1. cache-ref 태그 삭제
+		2. mapper 태그에 namespace 속성 추가
+			-> namespace : 해당 파일을 쉽게 부르는 이름(DAO 사용)
+	 -->
+	 
+	 <!-- 수행하려는 SQL에 따라서 태그가 구분됨 (사용 가능한 속성도 다름)
+			 <select></select>
+			 <update></update>
+			 <update></update>
+			 <delete></<delete>
+	  -->
+	  
+  	<select id="test1">
+  		SELECT COUNT(*) FROM MEMBER
+  	</select>
+  
+</mapper>
