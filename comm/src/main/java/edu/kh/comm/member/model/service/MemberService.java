@@ -12,13 +12,33 @@ import edu.kh.comm.member.model.vo.Member;
  * 
  * */
 public interface MemberService {
-	
+
 	// 모든 메서드가 추상 메서드 (묵시적으로 public abstract)
-	// 모든 필드는 상수 		 (묵시적으로 public static final)
-	
-	/** 로그인 서비스
+	// 모든 필드는 상수 (묵시적으로 public static final)
+
+	/**
+	 * 로그인 서비스
+	 * 
 	 * @param inputMember
 	 * @return loginMember
 	 */
 	public abstract Member login(Member inputMember);
+
+	/** 이메일 중복 검사
+	 * @param memberEmail
+	 * @return
+	 */
+	public abstract int emailDupCheck(String memberEmail);
+
+	/** 닉네임 중복 검사
+	 * @param memberNickname
+	 * @return
+	 */
+	public abstract int nicknameDupCheck(String memberNickname);
+
+	/** 회원 가입 DB 저장
+	 * @param newMember 
+	 * @return
+	 */
+	public abstract int insertMember(Member newMember);
 }
