@@ -159,6 +159,7 @@ uri="http://java.sun.com/jsp/jstl/core" %>
             <input
               type="text"
               id="memberAddress"
+              class="zonecode"
               name="memberAddress"
               placeholder="우편번호"
               maxlength="6"

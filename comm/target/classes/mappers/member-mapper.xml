@@ -113,5 +113,16 @@
 		INSERT INTO MEMBER_S
 		VALUES(SEQ_MEMBER_NO_S.NEXTVAL, #{memberEmail}, #{memberPw}, #{memberNickname}, #{memberTel} , #{memberAddress}, DEFAULT, DEFAULT, DEFAULT)
 	</insert>
+	
+	<!-- 회원 정보 조회 비동기 통신(AJAX) -->
+	<select id="memberSelectOne" parameterType="string" resultMap="member_rm">
+		SELECT * FROM MEMBER_S
+		WHERE MEMBER_EMAIL = #{memberEmail}
+	</select>
+	
+	<!-- 회원 목록 조회(ajax) DAO -->
+	<select id="memberSelectAll" resultMap="member_rm">
+		SELECT * FROM MEMBER_S
+	</select>
 
 </mapper>

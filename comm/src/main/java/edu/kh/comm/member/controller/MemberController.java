@@ -1,5 +1,7 @@
 package edu.kh.comm.member.controller;
 
+import java.util.List;
+
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -9,8 +11,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -213,7 +215,13 @@ public class MemberController {
 	@PostMapping("/signUp")
 	public String signUpPost(Member newMember) {
 		
-		int result = service.insertMember(newMember);
+		String[] address = newMember.getMemberAddress().split(",");
+		
+		String address2 = String.join(",,", address);
+		
+		newMember.setMemberAddress(address2);
+		
+		service.insertMember(newMember);
 		
 		return "redirect:/"; // views/member/signUp
 	}
@@ -242,5 +250,55 @@ public class MemberController {
 	public int nicknameDupCheck(String memberNickname) {
 		return service.nicknameDupCheck(memberNickname);
 	}
+	
+	// 회원 가입
+	
+	// 회원 1명 정보 조회 (ajax)
+	
+	@ResponseBody
+	@RequestMapping("/selectOne")
+	public Member memberSelectOne(String memberEmail) {
+		
+		Member member = service.memberSelectOne(memberEmail);
+		
+		return member;
+	}
+	
+	
+	// 회원 목록 조회(ajax)
+	@ResponseBody
+	@RequestMapping("/selectAll")
+	public List<Member> memberSelectAll() {
+		
+		List<Member> memberList = service.memberSelectAll();
+		
+		return memberList;
+	}
+	
+	
+	/* 스프링 예외 처리 방법 (3가지, 중복 사용 가능)
+	 * 
+	 * 1순위 : 메서드 별로 예외 처리( try-catch / throws )
+	 * 
+	 * 2순위 : 하나의 컨트롤러에서 발생하는 예외를 모아서 처리
+	 * 		-> @ExceptionHandler (메서드에 작성)
+	 * 		-> 보통 해당 컨트롤러 최하단에 작성함
+	 * 
+	 * 3순위 : 전역(웹 애플리케이션)에서 발생하는 예외를 모아서 처리
+	 * 		-> @ControllerAdvice (클래스에 작성)
+	 * 		-> 보통 예외처리용 클래스를 생성해서 거기서 처리함
+	 * 
+	 * */
+	
+	// 회원 컨트롤러에서 발생하는 모든 예외를 모아서 처리
+//	@ExceptionHandler(Exception.class)
+//	public String exceptionHandler(Exception e, Model model) { // ArgumentResolver가 있어서 매개변수로 사용 가능
+//		e.printStackTrace();
+//		
+//		model.addAttribute("errorMessage", "서비스 이용 중 문제가 발생했습니다.");
+//		model.addAttribute("e", e);
+//		
+//		return "common/error"; // view/common/error.jsp
+//	}
 
 }
