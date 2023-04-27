@@ -6,16 +6,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import edu.kh.comm.member.model.service.MyPageService;
 import edu.kh.comm.member.model.vo.Member;
+import oracle.jdbc.proxy.annotation.Post;
 
 @Controller
 @SessionAttributes({"loginMember"})
+@RequestMapping("/member/myPage")
 public class MyPageController {
 	
 	private Logger logger = LoggerFactory.getLogger(getClass());
@@ -23,10 +28,11 @@ public class MyPageController {
 	@Autowired
 	private MyPageService service;
 	
-
-	// 비밀번호 변경
-	
-	// 회원 탈퇴
+	// 회원 정보 페이지 화면 전환
+	@GetMapping("/info")
+	public String myPage() {
+		return "/member/myPage-info";
+	}
 	
 	// 회원 정보 수정
 	public String updateInfo(@ModelAttribute("loginMember") Member loginMember, 
@@ -65,5 +71,26 @@ public class MyPageController {
 		// (필드명 겹쳐서 생긴 문제이므로 겹치지 않게 변동하는 것)
 		return "redirect:info";
 	}
+	
+		// 비밀번호 변경 화면 전환
+		@GetMapping("/changePw")
+		public String changePw() {
+			
+			return "/member/myPage-changePw";
+		}
+		
+		@PostMapping("/changePw")
+		public String changePwPost(String currentPw, String newPw) {
+			
+			int result = service.changePw(currentPw, newPw);
+			
+			return "redirect:/";
+		}
+		
+		// 회원 탈퇴 화면 전환
+		@GetMapping("/secession")
+		public String secession() {
+			return "/member/myPage-secession";
+		}
 	
 }
