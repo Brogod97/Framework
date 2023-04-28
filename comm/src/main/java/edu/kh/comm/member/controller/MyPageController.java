@@ -1,6 +1,11 @@
 package edu.kh.comm.member.controller;
 
+import java.io.IOException;
 import java.util.Map;
+
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,11 +17,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.bind.support.SessionStatus;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import edu.kh.comm.member.model.service.MyPageService;
 import edu.kh.comm.member.model.vo.Member;
-import oracle.jdbc.proxy.annotation.Post;
 
 @Controller
 @SessionAttributes({"loginMember"})
@@ -34,7 +40,27 @@ public class MyPageController {
 		return "/member/myPage-info";
 	}
 	
+	// 비밀번호 변경 화면 전환
+	@GetMapping("/changePw")
+	public String changePw() {
+		
+		return "/member/myPage-changePw";
+	}
+	
+	// 회원 탈퇴 화면 전환
+	@GetMapping("/secession")
+	public String secession() {
+		return "/member/myPage-secession";
+	}
+	
+	// 회원 프로필 화면 전환
+	@GetMapping("/profile")
+	public String profile() {
+		return "/member/myPage-profile";
+	}
+	
 	// 회원 정보 수정
+	@PostMapping("/info")
 	public String updateInfo(@ModelAttribute("loginMember") Member loginMember, 
 							@RequestParam Map<String, Object> paramMap, // 요청시 전달된 파라미터를 구분하지 않고 모두 Map에 담아서 얻어옴
 							String[] updateAddress,
@@ -69,28 +95,146 @@ public class MyPageController {
 		
 		// [해결방법] 파라미터의 name 속성값을 변경해서 얻어오면 문제 해결!
 		// (필드명 겹쳐서 생긴 문제이므로 겹치지 않게 변동하는 것)
+		
+		
+		// 파라미터를 저장한 paramMap에 회원번호, 주소 추가
+		String memberAddress = String.join(",,", updateAddress); // 주소 배열 -> 문자열 변환
+		
+		// 주소가 미입력 되었을 때
+		if(memberAddress.equals(",,,,")) memberAddress = null;
+		
+		// 세션에서 가져온 회원번호 넣기
+		paramMap.put("memberNo", loginMember.getMemberNo());
+		// 가공된 주소 넣기
+		paramMap.put("memberAddress", memberAddress);
+		
+		// 회원 정보 수정 서비스 호출
+		int result = service.updateInfo(paramMap);
+		
+		String message = null;
+		
+		if(result > 0) {
+			message = "회원 정보가 수정되었습니다.";
+			
+			// DB - Session 동기화 작업
+			// Map -> String 다운캐스팅 필요
+			loginMember.setMemberNickname( (String) paramMap.get("updateNickname") );
+			loginMember.setMemberTel( (String) paramMap.get("updateTel") );
+			loginMember.setMemberAddress( (String) paramMap.get("memberAddress") );
+		}else {
+			message = "회원 정보 수정 실패";
+		}
+		
+		ra.addFlashAttribute("message", message);
+		
 		return "redirect:info";
 	}
 	
-		// 비밀번호 변경 화면 전환
-		@GetMapping("/changePw")
-		public String changePw() {
-			
-			return "/member/myPage-changePw";
+	// 비밀번호 변경
+	@PostMapping("/changePw")
+	public String chanePw(@RequestParam Map<String, Object> paramMap,
+						  @ModelAttribute("loginMember") Member loginMember,
+						  RedirectAttributes ra) {
+		// 로그인된 회원의 번호를 paramMap에 추가
+		paramMap.put("memberNo", loginMember.getMemberNo());
+		
+		// 비밀번호 변경 서비스 호출
+		int result = service.changePw(paramMap);
+		
+		String message = null;
+		String path = null;
+		
+		if(result > 0) { // 변경 O -> info
+			message = "비밀번호가 변경되었습니다.";
+			path = "info";
+		} else { // 변경 X -> changePw
+			message = "현재 비밀번호가 일치하지 않습니다.";
+			path = "changePw";
 		}
 		
-		@PostMapping("/changePw")
-		public String changePwPost(String currentPw, String newPw) {
+		ra.addFlashAttribute("message", message);
+		
+		return "redirect:" + path;
+	}
+	
+	// 회원 탈퇴
+	@PostMapping("/secession")							 // session의 회원 정보 + 입력받은 파라미터(비밀번호)
+	public String secession(@ModelAttribute("loginMember") Member loginMember,
+							SessionStatus status,
+							HttpServletRequest req,
+							HttpServletResponse resp,
+							RedirectAttributes ra) {
+		
+		// 회원 탈퇴 서비스 호출
+		int result = service.secession(loginMember);
+		
+		String message = null;
+		String path = null;
+		
+		
+		if(result > 0) { // 탈퇴 성공 -> 메인 페이지
+			message = "탈퇴 되었습니다.";
+			path = "/";
 			
-			int result = service.changePw(currentPw, newPw);
+			// 1) 세션 삭제
+			status.setComplete();
 			
-			return "redirect:/";
+			// 2) 쿠키 삭제
+			Cookie cookie = new Cookie("saveId", "");
+			cookie.setMaxAge(0);
+			cookie.setPath(req.getContextPath());
+			resp.addCookie(cookie);
+			
+		} else { // 탈퇴 실패 -> secession
+			message = "현재 비밀번호가 일치하지 않습니다.";
+			path = "secession";
 		}
 		
-		// 회원 탈퇴 화면 전환
-		@GetMapping("/secession")
-		public String secession() {
-			return "/member/myPage-secession";
+		ra.addFlashAttribute("message", message);
+		
+		return "redirect:" + path;
+	}
+	
+	// 프로필 수정
+	@PostMapping("/profile")
+	public String updateProfile(@ModelAttribute("loginMember") Member loginMember,
+								@RequestParam("uploadImage") MultipartFile uploadImage, 
+								@RequestParam Map<String, Object> map, 
+								HttpServletRequest req, /* 파일 저장 경로 탐색용 */
+								RedirectAttributes ra) throws IOException { /*업로드 파일*/
+								
+		// 경로 작성하기
+		
+		// 1) 웹 접근 경로 ( /comm/resources/images/memberProfile/ )
+		String webPath = "/resources/images/memberProfile/";
+		
+		// 2) 서버 저장 폴더 경로
+		String folderPath = req.getSession().getServletContext().getRealPath(webPath);		
+		// C:\workspace\7_Framework\comm\src\main\webapp\resources\images\memberProfile
+		
+		// 경로 2개, 이미지, delete, 회원 번호 map 담기 (delete는 이미 담겨져 있음)
+		map.put("webPath", webPath);
+		map.put("folderPath", folderPath);
+		map.put("uploadImage", uploadImage);
+		map.put("memberNo", loginMember.getMemberNo());
+		
+		int result = service.updateProfile(map);
+		
+		String message = null;
+		
+		if(result > 0) {
+			message = "프로필 이미지가 변경되었습니다.";
+			
+			// DB - 세션 동기화
+			loginMember.setProfileImage( (String)map.get("profileImage") );
+			
+		}else {
+			message = "프로필 이미지 변경 실패";
 		}
+		
+		ra.addFlashAttribute("message", message);
+		
+		return "redirect:profile";
+	}
 	
 }

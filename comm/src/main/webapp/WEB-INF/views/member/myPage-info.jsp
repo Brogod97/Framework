@@ -99,13 +99,11 @@ uri="http://java.sun.com/jsp/jstl/functions"%>
               <button
                 type="button"
                 id="info-address-btn"
-                onclick="execDaumPostcode()"
+                onclick="return execDaumPostcode()"
               >
                 검색
               </button>
             </div>
-
-            <aside id="layer"></aside>
 
             <div class="myPage-row info-address">
               <input
@@ -132,8 +130,16 @@ uri="http://java.sun.com/jsp/jstl/functions"%>
     </main>
 
     <jsp:include page="/WEB-INF/views/common/footer.jsp" />
+    
+    <%-- 다음 주소 API --%>
+    <div id="layer" style="display:none;position:fixed;overflow:hidden;z-index:11;-webkit-overflow-scrolling:touch;">
+        <img src="//t1.daumcdn.net/postcode/resource/images/close.png" id="btnCloseLayer" style="cursor:pointer;position:absolute;right:-3px;top:-3px;z-index:1" onclick="closeDaumPostcode()" alt="닫기 버튼">
+    </div>
+
+    <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 
     <!-- myPage.js 추가 -->
     <script src="${contextPath}/resources/js/member/myPage.js"></script>
+  
   </body>
 </html>

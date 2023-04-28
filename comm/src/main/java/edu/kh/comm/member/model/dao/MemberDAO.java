@@ -67,12 +67,19 @@ public class MemberDAO {
 		return sqlSession.selectOne("memberMapper.nicknameDupCheck", memberNickname);
 	}
 
-	/** 회원 가입 DB 저장 DAO
-	 * @param insertMember
+	/** 회원 가입 DAO
+	 * @param inputMember
 	 * @return
 	 */
-	public int insertMember(Member newMember) {
-		return sqlSession.insert("memberMapper.insertMember", newMember);
+	public int signUp(Member inputMember) {
+		
+		// INSERT, UPDATE, DELETE 수행하기 위한 메서드 존재함
+		
+		// * insert(), update(), delete() 메서드의 반환값은 int로 고정
+		// -> mapper에서도 resultType이 항상 _int로 고정
+		// -> resultType 생략 가능 (묵시적으로 _int)
+		
+		return sqlSession.insert("memberMapper.signUp", inputMember);
 	}
 	
 	/** 회원 정보 조회 비동기 통신(AJAX)

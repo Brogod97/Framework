@@ -42,7 +42,7 @@ public interface MemberService {
 	 * @param newMember 
 	 * @return
 	 */
-	public abstract int insertMember(Member newMember);
+	public abstract int signUp(Member newMember);
 	
 	/** 회원 정보 조회 비동기 통신(AJAX)
 	 * @return member

@@ -91,13 +91,23 @@ public class MemberServiceImpl implements MemberService {
 		return dao.nicknameDupCheck(memberNickname);
 	}
 
-	// 회원 가입 DB 저장
+	// 회원 가입 서비스 구현
 	@Override
-	public int insertMember(Member newMember) {
+	public int signUp(Member inputMember) {
 		
-		newMember.setMemberPw(bcrypt.encode(newMember.getMemberPw()));
+		// 비밀번호 암호화(bcrypt)
 		
-		return dao.insertMember(newMember);
+		String encPw = bcrypt.encode(inputMember.getMemberPw());
+		
+		// 암호화된 비밀번호로 다시 세팅
+		
+		inputMember.setMemberPw(encPw);
+		
+		// DAO 호출
+		
+		int result = dao.signUp(inputMember);
+		
+		return result;
 	}
 	
 	// 회원 정보 조회 비동기 통신(AJAX)

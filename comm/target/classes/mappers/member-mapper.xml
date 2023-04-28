@@ -109,9 +109,15 @@
 	</select>
 	
 	<!-- 회원 가입 DB 저장 -->
-	<insert id="insertMember" parameterType="member">
+	<insert id="signUp" parameterType="member">
 		INSERT INTO MEMBER_S
-		VALUES(SEQ_MEMBER_NO_S.NEXTVAL, #{memberEmail}, #{memberPw}, #{memberNickname}, #{memberTel} , #{memberAddress}, DEFAULT, DEFAULT, DEFAULT)
+		VALUES(SEQ_MEMBER_NO_S.NEXTVAL, 
+			   #{memberEmail}, 
+			   #{memberPw}, 
+			   #{memberNickname}, 
+			   #{memberTel} , 
+			   #{memberAddress}, 
+			   DEFAULT, DEFAULT, DEFAULT)
 	</insert>
 	
 	<!-- 회원 정보 조회 비동기 통신(AJAX) -->
