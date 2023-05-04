@@ -81,7 +81,7 @@
                                                 <img class="list-thumbnail" src="${contextPath}${board.thumbnail}">
                                             </c:if>  
 
-                                            <a href="detail?no=${board.boardNo}&cp=${pagination.currentPage}&type=${param.type}${sURL}">${board.boardTitle}</a>                           
+                                            <a href="../detail/${boardCode}/${board.boardNo}?cp=${pagination.currentPage}${sURL}">${board.boardTitle}</a>
                                         </td>
                                         <td>${board.memberNickname}</td>
                                         <td>${board.createDate}</td>
@@ -99,8 +99,9 @@
             <div class="btn-area">
 
                 <c:if test="${!empty loginMember}">
-                    <!-- /community/board/write -->
-                    <button id="insertBtn" onclick="location.href='write?mode=insert&type=${param.type}&cp=${param.cp}'">글쓰기</button>                     
+                    <!-- /comm/board/write/3?mode=insert&cp=1 -->
+                    <!-- /comm/board/list/3 -->
+                    <button id="insertBtn" onclick="location.href='../write/${boardCode}?mode=insert&cp=${pagination.currentPage}'">글쓰기</button>                     
                 </c:if>
 
             </div>
@@ -109,7 +110,7 @@
             <div class="pagination-area">
 
                 <!-- 페이지네이션 a태그에 사용될 공통 주소를 저장한 변수 선언 -->
-                <c:set var="url" value="list?type=${param.type}&cp="/>
+                <c:set var="url" value="${boardCode}?cp="/>
 
 
                 <ul class="pagination">
@@ -147,13 +148,13 @@
 
             <!-- /board/list?type=1&cp=10 &key=t&query=안녕 -->
 
-            <form action="list" method="get" id="boardSearch" onsubmit="return searchValidate()">
+            <form action="${boardCode}" method="get" id="boardSearch" onsubmit="return searchValidate()">
                 <input type="hidden" name="type" value="${param.type}">
 
                 <select name="key" id="search-key">
                     <option value="t">제목</option>
-                  op  <option value="c">내용</option>
-                    <option value="tc">제목+내용</tion>
+                    <option value="c">내용</option>
+                    <option value="tc">제목+내용</option>
                     <option value="w">작성자</option>
                 </select>
 
